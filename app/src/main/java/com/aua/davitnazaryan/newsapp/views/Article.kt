@@ -1,8 +1,10 @@
-package com.aua.davitnazaryan.newsapp.view
+package com.aua.davitnazaryan.newsapp.views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
@@ -19,6 +21,22 @@ import coil.compose.rememberImagePainter
 import coil.size.Scale
 import coil.transform.CircleCropTransformation
 import com.aua.davitnazaryan.newsapp.model.Article
+import com.aua.davitnazaryan.newsapp.model.NewsResponse
+import com.aua.davitnazaryan.newsapp.util.Resource
+
+@Composable
+fun ArticleList(articlesResult: Resource<NewsResponse>) {
+
+    //will add load and error creen later
+    if (articlesResult !is Resource.Success) return
+
+    val articles = articlesResult.data?.articles ?: emptyList<Article>()
+    LazyColumn {
+        itemsIndexed(items = articles) { _, item ->
+            ArticleItem(article = item)
+        }
+    }
+}
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable

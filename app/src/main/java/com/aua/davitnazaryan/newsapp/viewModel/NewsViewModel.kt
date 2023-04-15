@@ -7,7 +7,6 @@ import com.aua.davitnazaryan.newsapp.model.NewsResponse
 import com.aua.davitnazaryan.newsapp.repository.NewsRepository
 import com.aua.davitnazaryan.newsapp.util.Resource
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class NewsViewModel(
     private val newsRepository: NewsRepository
