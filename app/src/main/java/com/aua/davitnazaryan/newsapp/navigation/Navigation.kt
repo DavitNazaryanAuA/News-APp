@@ -6,7 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.aua.davitnazaryan.newsapp.GsonSerializer
+import com.aua.davitnazaryan.newsapp.util.GsonSerializer
 import com.aua.davitnazaryan.newsapp.model.Article
 import com.aua.davitnazaryan.newsapp.viewModel.NewsViewModel
 import com.aua.davitnazaryan.newsapp.views.DetailedArticleScreen

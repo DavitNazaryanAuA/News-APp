@@ -14,13 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.aua.davitnazaryan.newsapp.GsonSerializer
+import com.aua.davitnazaryan.newsapp.util.GsonSerializer
 import com.aua.davitnazaryan.newsapp.model.NewsCategory
 import com.aua.davitnazaryan.newsapp.model.NewsResponse
 import com.aua.davitnazaryan.newsapp.navigation.Screen
 import com.aua.davitnazaryan.newsapp.util.Resource
 import com.aua.davitnazaryan.newsapp.viewModel.NewsViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -30,20 +31,24 @@ fun MainScreen(
     navController: NavController
 ) {
     val topHeadlinesState = viewModel.topHeadlines.observeAsState()
+    val newsCategoryState = viewModel.newsCategoryState
+    val searchParamState = viewModel.searchParamState
+
     val categoryOptionsOpened =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
-    val newsCategoryState = remember {
-        mutableStateOf(NewsCategory.General)
-    }
 
     DisposableEffect(Unit) {
         viewModel.updateTopHeadlines()
         onDispose { }
     }
 
-    LaunchedEffect(newsCategoryState.value) {
-        viewModel.updateTopHeadlines(newsCategoryState.value)
+    LaunchedEffect(newsCategoryState.value, ) {
+        viewModel.updateTopHeadlines()
+    }
+
+    LaunchedEffect(searchParamState.value, ) {
+        viewModel.updateTopHeadlines()
     }
 
     ModalBottomSheetLayout(
@@ -59,8 +64,9 @@ fun MainScreen(
         MainPage(
             topHeadlinesState = topHeadlinesState,
             scope = scope,
-            state = categoryOptionsOpened,
-            navController = navController
+            sheetState = categoryOptionsOpened,
+            navController = navController,
+            searchState = searchParamState
         )
     }
 }
@@ -70,8 +76,9 @@ fun MainScreen(
 fun MainPage(
     topHeadlinesState: State<Resource<NewsResponse>?>,
     scope: CoroutineScope,
-    state: ModalBottomSheetState,
-    navController: NavController
+    sheetState: ModalBottomSheetState,
+    navController: NavController,
+    searchState: MutableState<String>
 ) {
     Column {
         Row(
@@ -93,13 +100,20 @@ fun MainPage(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    SearchBar()
+                    SearchBar(
+                        onTextChange = {
+                            scope.launch {
+                                delay(1500)
+                                searchState.value = it
+                            }
+                        }
+                    )
                     Spacer(modifier = Modifier.size(20.dp))
                     IconButton(
                         onClick = {
                             scope.launch {
-                                if (!state.isVisible) {
-                                    state.show()
+                                if (!sheetState.isVisible) {
+                                    sheetState.show()
                                 }
                             }
                         },

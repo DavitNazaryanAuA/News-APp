@@ -1,4 +1,4 @@
-package com.aua.davitnazaryan.newsapp
+package com.aua.davitnazaryan.newsapp.util
 
 import com.google.gson.Gson
 

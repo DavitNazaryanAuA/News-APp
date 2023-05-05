@@ -1,5 +1,6 @@
 package com.aua.davitnazaryan.newsapp.viewModel
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,19 +12,20 @@ import kotlinx.coroutines.launch
 
 class NewsViewModel : ViewModel() {
     val topHeadlines: MutableLiveData<Resource<NewsResponse>> = MutableLiveData()
+    val newsCategoryState = mutableStateOf(NewsCategory.General)
+    val searchParamState = mutableStateOf("")
 
-    private var topHeadlinesPage = 1
     private var currentTopHeadlines: NewsResponse? = null
     private var newsRepository = NewsRepository()
 
-    fun updateTopHeadlines(category: NewsCategory = NewsCategory.General) = viewModelScope.launch{
+    fun updateTopHeadlines() = viewModelScope.launch{
         topHeadlines.postValue(Resource.Loading())
-        topHeadlines.value = updateCurrentTopHeadlines(category = category)
+        topHeadlines.value = updateCurrentTopHeadlines()
     }
 
-    private suspend fun updateCurrentTopHeadlines(category: NewsCategory): Resource<NewsResponse> {
+    private suspend fun updateCurrentTopHeadlines(): Resource<NewsResponse> {
         val topHeadlinesResponse = try {
-            newsRepository.getTopHeadlines(category = category)
+            newsRepository.getTopHeadlines(category = newsCategoryState.value)
         } catch (e: Error) {
             return Resource.Error("Error Getting News!")
         }
@@ -31,7 +33,6 @@ class NewsViewModel : ViewModel() {
         if (!topHeadlinesResponse.isSuccessful) return Resource.Error("Something Went Wrong!")
 
         topHeadlinesResponse.body()?.let {
-            topHeadlinesPage++
             it.articles.addAll(currentTopHeadlines?.articles ?: emptyList())
             it.articles.reverse()
             currentTopHeadlines = it

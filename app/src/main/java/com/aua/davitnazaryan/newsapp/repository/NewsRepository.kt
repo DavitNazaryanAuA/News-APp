@@ -6,11 +6,11 @@ import com.aua.davitnazaryan.newsapp.model.NewsCategory
 class NewsRepository {
     suspend fun getTopHeadlines(
         countryCode: String = "us",
-        pageNumber: Int = 1,
-        category: NewsCategory = NewsCategory.General
+        category: NewsCategory,
+        search: String = "",
     ) = RetrofitInstance.api.getTopHeadlines(
         countryCode = countryCode,
-        pageNumber = pageNumber,
-        category = category.toString()
+        category = category.toString(),
+        search = search
     )
 }

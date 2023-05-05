@@ -14,9 +14,9 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SearchBar(
+    onTextChange: (String) -> Unit
 ) {
     var searchText by remember { mutableStateOf("") }
-
     TextField(
         value = searchText,
         colors = TextFieldDefaults.textFieldColors(
@@ -25,7 +25,10 @@ fun SearchBar(
             focusedIndicatorColor = Color(0xFF0645AA)
         ),
         shape = RoundedCornerShape(30),
-        onValueChange = { newValue: String -> searchText = newValue },
+        onValueChange = {
+            searchText = it
+            onTextChange(it)
+        },
         placeholder = { Text("Search") },
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Search
