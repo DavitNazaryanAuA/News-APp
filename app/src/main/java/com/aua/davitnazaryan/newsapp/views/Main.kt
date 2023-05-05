@@ -43,11 +43,11 @@ fun MainScreen(
         onDispose { }
     }
 
-    LaunchedEffect(newsCategoryState.value, ) {
+    LaunchedEffect(newsCategoryState.value) {
         viewModel.updateTopHeadlines()
     }
 
-    LaunchedEffect(searchParamState.value, ) {
+    LaunchedEffect(searchParamState.value) {
         viewModel.updateTopHeadlines()
     }
 
@@ -57,6 +57,9 @@ fun MainScreen(
             FiltersBottomSheet(
                 filterApplyHandler = {
                     newsCategoryState.value = it
+                    scope.launch {
+                        categoryOptionsOpened.hide()
+                    }
                 }
             )
         }
@@ -133,7 +136,12 @@ fun MainPage(
             articlesResult = topHeadlinesState.value,
             articleOnClickHandler = {
                 val articleJson = Uri.encode(GsonSerializer.toJson(it))
-                navController.navigate(Screen.DetailedArticleScreen.route.replace("{article}", articleJson ))
+                navController.navigate(
+                    Screen.DetailedArticleScreen.route.replace(
+                        "{article}",
+                        articleJson
+                    )
+                )
             }
         )
     }
@@ -156,18 +164,28 @@ fun FiltersBottomSheet(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
+        val buttonSelectedStates = mutableListOf<MutableState<Boolean>>()
         NewsCategory.values().forEach { filter ->
+            val currentButtonState = remember {
+                mutableStateOf(false)
+            }
+            buttonSelectedStates.add(currentButtonState)
             FilterOption(
                 category = filter,
+                selectedState = currentButtonState,
                 selectOption = {
+                    val currentSelected = buttonSelectedStates.find { state -> state.value }
+                    currentSelected?.value = false
+                    currentButtonState.value = true
                     selectedOptionState.value = it
                 }
             )
         }
+
         Button(
             onClick = {
                 filterApplyHandler(selectedOptionState.value)
-
+                buttonSelectedStates.find { it.value }?.let { it.value = false }
             },
             modifier = Modifier
                 .padding(3.dp)
@@ -180,21 +198,11 @@ fun FiltersBottomSheet(
 @Composable
 fun FilterOption(
     category: NewsCategory,
+    selectedState: MutableState<Boolean>,
     selectOption: (NewsCategory) -> Unit
 ) {
-    val selectedState = remember {
-        mutableStateOf(false)
-    }
-
     Button(
-        onClick = {
-            if (selectedState.value) {
-                selectedState.value = false
-            } else {
-                selectOption(category)
-                selectedState.value = true
-            }
-        },
+        onClick = { selectOption(category) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp),
