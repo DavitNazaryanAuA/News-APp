@@ -3,29 +3,27 @@ package com.aua.davitnazaryan.newsapp.viewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aua.davitnazaryan.newsapp.model.NewsCategory
 import com.aua.davitnazaryan.newsapp.model.NewsResponse
 import com.aua.davitnazaryan.newsapp.repository.NewsRepository
 import com.aua.davitnazaryan.newsapp.util.Resource
 import kotlinx.coroutines.launch
 
-class NewsViewModel(
-    private val newsRepository: NewsRepository
-) : ViewModel() {
-
-    var currentTopHeadlines: NewsResponse? = null
+class NewsViewModel : ViewModel() {
     val topHeadlines: MutableLiveData<Resource<NewsResponse>> = MutableLiveData()
-    var topHeadlinesPage = 1
 
+    private var topHeadlinesPage = 1
+    private var currentTopHeadlines: NewsResponse? = null
+    private var newsRepository = NewsRepository()
 
-    fun updateTopHeadlines() = viewModelScope.launch{
+    fun updateTopHeadlines(category: NewsCategory = NewsCategory.General) = viewModelScope.launch{
         topHeadlines.postValue(Resource.Loading())
-        val displayData = handleNewTopHeadlines()
-        topHeadlines.value = displayData
+        topHeadlines.value = updateCurrentTopHeadlines(category = category)
     }
 
-    private suspend fun handleNewTopHeadlines(): Resource<NewsResponse> {
+    private suspend fun updateCurrentTopHeadlines(category: NewsCategory): Resource<NewsResponse> {
         val topHeadlinesResponse = try {
-            newsRepository.getTopHeadlines()
+            newsRepository.getTopHeadlines(category = category)
         } catch (e: Error) {
             return Resource.Error("Error Getting News!")
         }

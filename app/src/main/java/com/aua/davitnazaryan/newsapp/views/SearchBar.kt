@@ -1,12 +1,9 @@
 package com.aua.davitnazaryan.newsapp.views
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
@@ -22,9 +19,13 @@ fun SearchBar(
 
     TextField(
         value = searchText,
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = Color.White,
+            textColor = Color.Black,
+            focusedIndicatorColor = Color(0xFF0645AA)
+        ),
+        shape = RoundedCornerShape(30),
         onValueChange = { newValue: String -> searchText = newValue },
-        modifier = Modifier
-            .background(Color.White),
         placeholder = { Text("Search") },
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Search
